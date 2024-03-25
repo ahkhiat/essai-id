@@ -2,10 +2,11 @@
 
 namespace App\Entity;
 
-use App\Repository\LivresRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\LivresRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: LivresRepository::class)]
 class Livres
@@ -13,16 +14,24 @@ class Livres
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(["getLivres", "getAuteurs"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(["getLivres", "getAuteurs"])]
     private ?string $Titre_livre = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(["getLivres", "getAuteurs"])]
     private ?string $Theme_livre = null;
 
     #[ORM\OneToMany(targetEntity: Commandes::class, mappedBy: 'livre')]
+    // #[Groups(["getLivres", "getAuteurs"])]
     private Collection $commandes;
+
+    #[ORM\ManyToOne(inversedBy: 'livres')]
+    #[Groups(["getLivres", "getAuteurs"])]
+    private ?Auteurs $auteur = null;
 
     public function __construct()
     {
@@ -84,6 +93,18 @@ class Livres
                 $commande->setLivre(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAuteur(): ?Auteurs
+    {
+        return $this->auteur;
+    }
+
+    public function setAuteur(?Auteurs $auteur): static
+    {
+        $this->auteur = $auteur;
 
         return $this;
     }
